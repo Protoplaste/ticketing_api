@@ -1,5 +1,4 @@
 class Ticket < ApplicationRecord
-  belongs_to :event
-  belongs_to :reservation
+  belongs_to :reservation, optional: true
   belongs_to :seat
 end
