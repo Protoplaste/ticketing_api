@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Reservations', type: :request do
   let(:event) { create(:event) }
   let!(:seats) { create_list( :seat, 3, event: event) }
-  let(:seat_ids) { seats.map { |s| s.id } }
+  let(:seat_ids) { seats.map(&:id) }
 
   describe 'POST /reservations' do
     let(:valid_attributes) { { seats: seat_ids } }
@@ -14,6 +14,19 @@ RSpec.describe 'Reservations', type: :request do
 
       it 'creates a reservation' do
         expect(json["id"]).to_not be nil
+        expect(Reservation.last).to_not be nil
+      end
+
+      it 'creates tickets' do
+        tickets = Reservation.last.tickets
+        expect(tickets.empty?).to_not be true
+        expect(tickets.length).to eq 3
+      end
+
+      it 'creates pending payment' do
+        payment = Reservation.last.payment
+        expect(payment.status).to eq "pending"
+        expect(payment.amount).to eq payment.reservation.total_cost
       end
 
       it 'returns status code 201' do
