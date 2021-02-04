@@ -5,8 +5,9 @@ class ReservationsController < ApplicationController
       Seat.find(params[:seats]).each do |seat|
         Ticket.create!(seat: seat, reservation: @reservation)
       end
+      Payment.create!(reservation: @reservation, amount: @reservation.total_cost)
     end
-
+    
     json_response(@reservation, :created)
   end
 
