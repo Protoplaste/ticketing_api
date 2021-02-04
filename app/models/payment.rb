@@ -3,4 +3,8 @@ class Payment < ApplicationRecord
   belongs_to :reservation
 
   validates_presence_of :amount, :status
+
+  def set_paid
+    self.status = Payment.statuses[:paid]
+  end
 end
