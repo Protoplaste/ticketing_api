@@ -80,6 +80,33 @@ RSpec.describe 'Reservations', type: :request do
           include_examples "reservation request failure examples"
         end
       end
+
+      context 'all together' do
+        let(:sector) { create(:sector, selling_option_all_together: true) }
+
+        before { post '/reservations', params: params }
+
+        it 'lets valid request through' do
+          expect(response).to have_http_status(201)
+        end
+
+        context 'when reserving seats in defferent rows' do
+          let(:rows) { ["A", "B"] }
+          let!(:seats) do
+            seats = []
+            rows.each do |row|
+              seats << create(:seat, sector: sector, row: row)
+            end
+            seats
+          end
+
+          it 'returns error message' do
+            expect(json["message"]).to eq "Validation failed: Seat placement cannot reserve seats in different rows in this sector"
+          end
+
+          include_examples "reservation request failure examples"
+        end
+      end
     end
   end
 end

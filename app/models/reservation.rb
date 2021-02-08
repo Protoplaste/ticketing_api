@@ -31,8 +31,9 @@ class Reservation < ApplicationRecord
   end
 
   def seats_next_to_each_other
+    seats = tickets.map(&:seat)
     if seats.map(&:row).uniq.length > 1
-      errors.add(:ticket_count, "cannot reserve seats in different rows in this sector")
+      errors.add(:seat_placement, "cannot reserve seats in different rows in this sector")
     end
   end
 end
