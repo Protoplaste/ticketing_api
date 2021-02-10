@@ -1,7 +1,10 @@
 FactoryBot.define do
   factory :payment do
     reservation
-    amount { reservation.total_cost }
-    status { 0 }
+    status { Payment.statuses[:pending] }
+
+    before :create do |payment|
+      payment.amount = payment.reservation.total_cost
+    end
   end
 end
