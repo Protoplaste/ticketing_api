@@ -13,6 +13,8 @@ class ReservationsController < ApplicationController
       
       #prepare payment
       Payment.create!(reservation: @reservation, amount: @reservation.total_cost)
+      #Create a job to remove the reservation if it's not paid for in 15 minutes
+      ReservationTimeoutJob.set(wait: 15.minutes).perform_later(@reservation)
     end
     
     json_response(@reservation, :created)
