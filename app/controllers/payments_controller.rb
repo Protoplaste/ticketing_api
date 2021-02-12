@@ -9,6 +9,7 @@ class PaymentsController < ApplicationController
     payment.set_paid
     payment.save!
 
+    #Checking for reservation status after processing payment to avoid racing condition with reservation timeout job
     if payment.reservation.status == "timeout"
       response = Adapter::Payment::Gateway.refund(token: params[:token],
                                                   amount: payment.amount,
