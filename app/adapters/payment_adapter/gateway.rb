@@ -4,20 +4,27 @@
 module Adapter
   module Payment
     class Gateway
-      CardError = Class.new(StandardError)
-      PaymentError = Class.new(StandardError)
-
-      Result = Struct.new(:amount, :currency)
+      include GatewayError
+      Result = Struct.new(:amount, :currency, :transaction_type)
 
       class << self
         def charge(amount:, token:, currency: "EUR")
           case token.to_sym
           when :card_error
-            raise CardError, "Your card has been declined."
+            raise GatewayError::CardError
           when :payment_error
-            raise PaymentError, "Something went wrong with your transaction."
+            raise GatewayError::PaymentError
           else
-            Result.new(amount, currency)
+            Result.new(amount, currency, :payment)
+          end
+        end
+
+        def refund(amount:, token:, payment_id:, currency: "EUR")
+          case token.to_sym
+          when :refund_error
+            raise GatewayError::RefundError.new(payment_id)
+          else
+            Result.new(amount, currency, :refund)
           end
         end
       end

@@ -1,9 +1,9 @@
 class Reservation < ApplicationRecord
-  has_many :tickets
+  has_many :tickets, dependent: :destroy
   has_many :seats, through: :tickets
   has_one :payment
 
-  validates :tickets, presence: true
+  validates :tickets, presence: true, on: :create
   validate :even_ticket_number, if: -> { sector&.selling_option_even }
   validate :avoids_one_seat_left, if: -> { sector&.selling_option_avoid_one }
   validate :seats_next_to_each_other, if: -> { sector&.selling_option_all_together }

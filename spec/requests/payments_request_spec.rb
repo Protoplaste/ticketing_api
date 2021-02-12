@@ -11,7 +11,6 @@ RSpec.describe "Payments", type: :request do
     before { put "/payments/#{payment_id}", params: params }
 
     context 'when payment goes through' do
-
       it 'returns correct amount paid' do
         expect(json["amount"]).to eq reservation.total_cost
       end
@@ -22,6 +21,21 @@ RSpec.describe "Payments", type: :request do
 
       it 'returns status code 200' do
         expect(response).to have_http_status(200)
+      end
+    end
+
+    context 'when reservation timed out during payment' do
+      before do 
+        ReservationTimeoutJob.perform_now(reservation)
+        put "/payments/#{payment_id}", params: params
+      end
+
+      it 'processes a refund' do
+        expect(json["transaction_type"]).to eq "refund"
+      end
+
+      it 'sets payment status to refunded' do
+        expect(Payment.last.status).to eq "refunded"
       end
     end
 

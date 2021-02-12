@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :reservation do
     status { "unpaid" }
-    factory :full_reservation do
+    factory :reservation_with_tickets do
       before :create do |reservation|
         sector = create(:sector)
         seats = create_list(:seat, 3, sector: sector)
@@ -10,8 +10,10 @@ FactoryBot.define do
         end
       end
 
-      after :create do |reservation|
-        create(:payment, reservation: reservation, amount: reservation.total_cost)
+      factory :full_reservation do
+        after :create do |reservation|
+          create(:payment, reservation: reservation)
+        end
       end
     end
   end
