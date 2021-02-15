@@ -1,3 +1,3 @@
 class Event < ApplicationRecord
-  has_many :seats
+  has_many :sectors
 end
