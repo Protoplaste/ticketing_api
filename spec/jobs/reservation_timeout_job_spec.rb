@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ReservationTimeoutJob, type: :job do
@@ -5,22 +7,23 @@ RSpec.describe ReservationTimeoutJob, type: :job do
   let!(:reservation) { create(:reservation_with_tickets) }
   let!(:payment) { create(:payment, reservation: reservation, status: payment_status) }
 
-  before { ReservationTimeoutJob.perform_now(reservation) }
+  before { described_class.perform_now(reservation) }
 
-  context "when reservation is paid for" do
+  context 'when reservation is paid for' do
     let(:payment_status) { Payment.statuses[:paid] }
+
     it 'does not update the reservation status' do
-      expect(Reservation.last.status).to_not eq "timeout"
+      expect(Reservation.last.status).not_to eq 'timeout'
     end
 
     it 'does not destroy reservations tickets' do
-      expect(Ticket.first).to_not be nil
+      expect(Ticket.first).not_to be nil
     end
   end
 
-  context "when reservation is not paid for" do
+  context 'when reservation is not paid for' do
     it 'updates the reservation status' do
-      expect(Reservation.last.status).to eq "timeout"
+      expect(Reservation.last.status).to eq 'timeout'
     end
 
     it 'destroys reservations tickets' do

@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :reservation do
-    status { "unpaid" }
+    status { 'unpaid' }
     factory :reservation_with_tickets do
       before :create do |reservation|
         sector = create(:sector)

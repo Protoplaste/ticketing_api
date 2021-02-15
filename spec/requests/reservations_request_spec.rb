@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'Reservations', type: :request do
@@ -11,14 +13,14 @@ RSpec.describe 'Reservations', type: :request do
     context 'when the request is valid' do
       before { post '/reservations', params: params }
 
-      include_examples "reservation request success examples"
+      include_examples 'reservation request success examples'
     end
 
     context 'when trying to create an empty reservation' do
-      before { post '/reservations', params: { } }
+      before { post '/reservations', params: {} }
 
       it 'returns status code 404' do
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
       end
 
       it 'returns a error message' do
@@ -26,7 +28,7 @@ RSpec.describe 'Reservations', type: :request do
           .to match("message\":\"Couldn't find Seat without an ID")
       end
 
-      include_examples "reservation request failure examples"
+      include_examples 'reservation request failure examples'
     end
 
     context 'when sector have enabled selling option' do
@@ -36,17 +38,17 @@ RSpec.describe 'Reservations', type: :request do
         before { post '/reservations', params: params }
 
         it 'lets valid request through' do
-          expect(response).to have_http_status(201)
+          expect(response).to have_http_status(:created)
         end
 
         context 'when trying to reserve odd number of tickets' do
           let!(:seats) { create_list(:seat, 3, sector: sector) }
 
           it 'returns error message' do
-            expect(json["message"]).to eq "Validation failed: Ticket count cannot be an odd number in this sector"
+            expect(json['message']).to eq 'Validation failed: Ticket count cannot be an odd number in this sector'
           end
 
-          include_examples "reservation request failure examples"
+          include_examples 'reservation request failure examples'
         end
       end
 
@@ -58,7 +60,7 @@ RSpec.describe 'Reservations', type: :request do
 
         context 'when reservation leaves no seats left' do
           it 'lets valid request through' do
-            expect(response).to have_http_status(201)
+            expect(response).to have_http_status(:created)
           end
         end
 
@@ -66,7 +68,7 @@ RSpec.describe 'Reservations', type: :request do
           let!(:additional_seats) { create_list(:seat, 2, sector: sector) }
 
           it 'lets valid request through' do
-            expect(response).to have_http_status(201)
+            expect(response).to have_http_status(:created)
           end
         end
 
@@ -74,10 +76,10 @@ RSpec.describe 'Reservations', type: :request do
           let!(:additional_seats) { create(:seat, sector: sector) }
 
           it 'returns error message' do
-            expect(json["message"]).to eq "Validation failed: Ticket count cannot leave one seat empty in this sector"
+            expect(json['message']).to eq 'Validation failed: Ticket count cannot leave one seat empty in this sector'
           end
 
-          include_examples "reservation request failure examples"
+          include_examples 'reservation request failure examples'
         end
       end
 
@@ -87,11 +89,11 @@ RSpec.describe 'Reservations', type: :request do
         before { post '/reservations', params: params }
 
         it 'lets valid request through' do
-          expect(response).to have_http_status(201)
+          expect(response).to have_http_status(:created)
         end
 
         context 'when reserving seats in defferent rows' do
-          let(:rows) { ["A", "B"] }
+          let(:rows) { %w[A B] }
           let!(:seats) do
             seats = []
             rows.each do |row|
@@ -101,10 +103,10 @@ RSpec.describe 'Reservations', type: :request do
           end
 
           it 'returns error message' do
-            expect(json["message"]).to eq "Validation failed: Seat placement cannot reserve seats in different rows in this sector"
+            expect(json['message']).to eq 'Validation failed: Seat placement cannot reserve seats in different rows in this sector'
           end
 
-          include_examples "reservation request failure examples"
+          include_examples 'reservation request failure examples'
         end
       end
     end

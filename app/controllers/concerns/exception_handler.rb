@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ExceptionHandler
   # provides the more graceful `included` method
   extend ActiveSupport::Concern
@@ -12,7 +14,7 @@ module ExceptionHandler
     end
 
     rescue_from GatewayError::GatewayError do |e|
-      if e.class == GatewayError::RefundError
+      if e.instance_of?(GatewayError::RefundError)
         payment = Payment.find(e.payment_id)
         payment.set_refund_failed
         payment.save!
