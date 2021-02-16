@@ -1,5 +1,15 @@
 require:
   - rubocop-rails
   - rubocop-rspec
-Documentation:
+
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+  TargetRubyVersion: 3.0
+  Exclude:
+    - 'db/**/*'
+    - 'bin/**'
+    - 'Guardfile'
+
+Style/Documentation:
   Enabled: false
