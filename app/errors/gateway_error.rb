@@ -16,15 +16,28 @@ module GatewayError
   end
 
   class RefundError < GatewayError
-    attr_reader :payment
+    attr_reader :payment_id
 
-    def initailze(payment)
+    def initialize(payment_id)
       super
-      @payment = payment
+      @payment_id = payment_id
     end
 
     def message
       'Something went wrong with the refund process'
+    end
+  end
+
+  class PaymentUnrefundable < GatewayError
+    attr_reader :status
+
+    def initialize(status)
+      super
+      @status = status
+    end
+
+    def message
+      "Cannot refund payment with status #{status}"
     end
   end
 end
