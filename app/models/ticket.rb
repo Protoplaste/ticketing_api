@@ -5,5 +5,5 @@ class Ticket < ApplicationRecord
   belongs_to :seat
   has_one :sector, through: :seat
 
-  validates :reservation_id, uniqueness: { scope: [:seat_id] }
+  validates :seat_id, uniqueness: { message: 'Seat already reserved' }
 end

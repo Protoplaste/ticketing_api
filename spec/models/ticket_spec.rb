@@ -11,5 +11,5 @@ RSpec.describe Ticket, type: :model do
   it { is_expected.to belong_to(:seat) }
   it { is_expected.to have_one(:sector).through(:seat) }
 
-  it { is_expected.to validate_uniqueness_of(:reservation_id).scoped_to(:seat_id) }
+  it { is_expected.to validate_uniqueness_of(:seat_id).with_message('Seat already reserved') }
 end
