@@ -1,6 +1,7 @@
 # PAYMENT ADAPTER
 
 # frozen_string_literal: true
+
 module Adapter
   module Payment
     class Gateway
@@ -8,7 +9,7 @@ module Adapter
       Result = Struct.new(:amount, :currency, :transaction_type)
 
       class << self
-        def charge(amount:, token:, currency: "EUR")
+        def charge(amount:, token:, currency: 'EUR')
           case token.to_sym
           when :card_error
             raise GatewayError::CardError
@@ -19,10 +20,10 @@ module Adapter
           end
         end
 
-        def refund(amount:, token:, payment_id:, currency: "EUR")
+        def refund(amount:, token:, payment_id:, currency: 'EUR')
           case token.to_sym
           when :refund_error
-            raise GatewayError::RefundError.new(payment_id)
+            raise GatewayError::RefundError, payment_id
           else
             Result.new(amount, currency, :refund)
           end

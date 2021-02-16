@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 class Payment < ApplicationRecord
   enum status: { pending: 0, paid: 1, refunded: 2, refund_failed: 3 }
   belongs_to :reservation
 
-  validates_presence_of :amount, :status
+  validates :amount, :status, presence: true
 
   def set_paid
     self.status = Payment.statuses[:paid]

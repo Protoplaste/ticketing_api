@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Event, type: :model do
-  it { should have_many(:sectors) }
+  it { is_expected.to have_many(:sectors) }
 end

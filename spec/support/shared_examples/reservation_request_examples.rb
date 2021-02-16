@@ -1,25 +1,30 @@
-RSpec.shared_examples "reservation request success examples" do
+# frozen_string_literal: true
+
+RSpec.shared_examples 'reservation request success examples' do
   it 'returns reservation id' do
-    expect(json["id"]).to_not be nil
+    expect(json['id']).not_to be nil
   end
 
   it 'returns status code 201' do
-    expect(response).to have_http_status(201)
+    expect(response).to have_http_status(:created)
   end
 
   it 'creates a reservation' do
-    expect(Reservation.last).to_not be nil
+    expect(Reservation.last).not_to be nil
   end
 
   it 'creates tickets' do
     tickets = Reservation.last.tickets
-    expect(tickets.empty?).to_not be true
     expect(tickets.length).to eq seats.length
   end
 
   it 'creates a pending payment' do
     payment = Reservation.last.payment
-    expect(payment.status).to eq "pending"
+    expect(payment.status).to eq 'pending'
+  end
+
+  it 'assings correct amount to payment' do
+    payment = Reservation.last.payment
     expect(payment.amount).to eq payment.reservation.total_cost
   end
 
@@ -28,9 +33,8 @@ RSpec.shared_examples "reservation request success examples" do
   end
 end
 
-RSpec.shared_examples "reservation request failure examples" do
+RSpec.shared_examples 'reservation request failure examples' do
   it 'does not create a reservation' do
-    expect(json["id"]).to be nil
     expect(Reservation.last).to be nil
   end
 
@@ -43,6 +47,6 @@ RSpec.shared_examples "reservation request failure examples" do
   end
 
   it 'does not create a timeout job' do
-    expect(ReservationTimeoutJob).to_not have_been_enqueued
+    expect(ReservationTimeoutJob).not_to have_been_enqueued
   end
 end

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 class Ticket < ApplicationRecord
   belongs_to :reservation
   belongs_to :seat
   has_one :sector, through: :seat
 
-  validates_uniqueness_of :reservation_id, scope: [:seat_id]
+  validates :seat_id, uniqueness: { message: 'Seat already reserved' }
 end
