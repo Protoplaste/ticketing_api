@@ -3,7 +3,7 @@
 class Reservation < ApplicationRecord
   has_many :tickets, dependent: :destroy
   has_many :seats, through: :tickets
-  has_one :payment
+  has_one :payment, dependent: :nullify
 
   validates :tickets, presence: true, on: :create
   validate :even_ticket_number, if: -> { selling_option_even? }
@@ -42,8 +42,8 @@ class Reservation < ApplicationRecord
 
   def seats_next_to_each_other
     seats = tickets.map(&:seat)
-    if seats.map(&:row).uniq.length > 1
-      errors.add(:seat_placement, 'cannot reserve seats in different rows in this sector')
-    end
+    return unless seats.map(&:row).uniq.length > 1
+
+    errors.add(:seat_placement, 'cannot reserve seats in different rows in this sector')
   end
 end

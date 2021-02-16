@@ -9,12 +9,12 @@ RSpec.describe Reservation, type: :model do
 
   it { is_expected.to validate_presence_of(:tickets) }
 
-  context 'selling options validations' do
+  describe 'selling options validations' do
     error_messages = { odd_seat_number: 'Ticket count cannot be an odd number in this sector',
                        one_seat_left_empty: 'Ticket count cannot leave one seat empty in this sector',
                        seats_separated: 'Seat placement cannot reserve seats in different rows in this sector' }
     # Prepare reservation that fails all selling option validations
-    subject { build(:full_reservation, seats: seats) }
+    let(:reservation) { build(:full_reservation, seats: seats) }
 
     let(:sector) { create(:sector_with_selling_options) }
     let(:rows) { %w[A B C] }
@@ -27,26 +27,24 @@ RSpec.describe Reservation, type: :model do
     end
     let!(:additional_seat) { create(:seat, sector: sector) }
 
-    before { subject.valid? }
+    before { reservation.valid? }
 
-    context 'when selling options are enabled' do
-      context "and reservation doesn't meet them" do
-        error_messages.each do |key, message|
-          it "adds error message for #{key}" do
-            expect(subject.errors.full_messages).to include message
-          end
+    context 'when selling options are enabled and reservation does not meet them' do
+      error_messages.each do |key, message|
+        it "adds error message for #{key}" do
+          expect(reservation.errors.full_messages).to include message
         end
       end
+    end
 
-      context 'and reservation meets them' do
-        let(:sector) { create(:sector) }
-        let(:rows) { %w[A A] }
-        let(:additional_seat) {}
+    context 'when selling options are enabled and reservation meets them' do
+      let(:sector) { create(:sector) }
+      let(:rows) { %w[A A] }
+      let(:additional_seat) {}
 
-        error_messages.each do |key, message|
-          it "does not add error message for #{key}" do
-            expect(subject.errors.full_messages).not_to include message
-          end
+      error_messages.each do |key, message|
+        it "does not add error message for #{key}" do
+          expect(reservation.errors.full_messages).not_to include message
         end
       end
     end
@@ -56,7 +54,7 @@ RSpec.describe Reservation, type: :model do
 
       error_messages.each do |key, message|
         it "does not add error message for #{key}" do
-          expect(subject.errors.full_messages).not_to include message
+          expect(reservation.errors.full_messages).not_to include message
         end
       end
     end

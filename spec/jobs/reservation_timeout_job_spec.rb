@@ -4,10 +4,13 @@ require 'rails_helper'
 
 RSpec.describe ReservationTimeoutJob, type: :job do
   let(:payment_status) { Payment.statuses[:pending] }
-  let!(:reservation) { create(:reservation_with_tickets) }
-  let!(:payment) { create(:payment, reservation: reservation, status: payment_status) }
+  let(:reservation) { create(:reservation_with_tickets) }
+  let(:payment) { create(:payment, reservation: reservation, status: payment_status) }
 
-  before { described_class.perform_now(reservation) }
+  before do
+    payment
+    described_class.perform_now(reservation)
+  end
 
   context 'when reservation is paid for' do
     let(:payment_status) { Payment.statuses[:paid] }

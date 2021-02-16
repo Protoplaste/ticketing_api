@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_04_060646) do
+ActiveRecord::Schema.define(version: 2021_02_16_170405) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,7 +64,7 @@ ActiveRecord::Schema.define(version: 2021_02_04_060646) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["reservation_id"], name: "index_tickets_on_reservation_id"
-    t.index ["seat_id"], name: "index_tickets_on_seat_id"
+    t.index ["seat_id"], name: "index_tickets_on_seat_id", unique: true
   end
 
   add_foreign_key "payments", "reservations"

@@ -6,15 +6,15 @@ RSpec.describe 'Payments', type: :request do
   let(:reservation) { create(:reservation_with_tickets) }
   let(:status) { 'pending' }
   let!(:payment) { create(:payment, reservation: reservation, status: status) }
-  let(:payment_id) { payment.id }
-  let(:token) { 'valid' }
+  let(:token) { :valid }
   let(:params) { { token: token } }
+  let(:payment_id) { payment.id }
 
   describe 'put /payment/:payment_id/charge' do
-    subject { put "/payments/#{payment_id}/charge", params: params }
+    let(:request) { put "/payments/#{payment_id}/charge", params: params }
 
     context 'when payment goes through' do
-      before { subject }
+      before { request }
 
       it 'returns correct amount paid' do
         expect(json['amount']).to eq reservation.total_cost
@@ -32,67 +32,67 @@ RSpec.describe 'Payments', type: :request do
     context 'when reservation timed out during payment' do
       before do
         ReservationTimeoutJob.perform_now(reservation)
-        subject
+        request
       end
 
       it 'redirects to refund process' do
-        expect(subject).to redirect_to(action: :refund, id: payment_id)
+        expect(request).to redirect_to(action: :refund, id: payment_id)
       end
     end
 
     context 'when payment not found' do
       let(:payment_id) { 0 }
 
-      before { subject }
+      before { request }
 
       it 'returns an error' do
         expect(json['message']).to include("Couldn't find Payment")
       end
     end
 
-    context 'when payment fails' do
-      before { subject }
+    context 'when payment fails due to card error' do
+      before { request }
 
-      context 'due to card error' do
-        let(:token) { 'card_error' }
+      let(:token) { :card_error }
 
-        it 'returns correct error message' do
-          expect(json['message']).to eq 'Your card has been declined.'
-        end
-
-        it 'does not update payment status' do
-          expect(Payment.last.status).to eq 'pending'
-        end
-
-        it 'returns status code 400' do
-          expect(response).to have_http_status(:bad_request)
-        end
+      it 'returns correct error message' do
+        expect(json['message']).to eq 'Your card has been declined.'
       end
 
-      context 'due to payment error' do
-        let(:token) { 'payment_error' }
+      it 'does not update payment status' do
+        expect(Payment.last.status).to eq 'pending'
+      end
 
-        it 'returns correct error message' do
-          expect(json['message']).to eq 'Something went wrong with your transaction.'
-        end
+      it 'returns status code 400' do
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
 
-        it 'does not update payment status' do
-          expect(Payment.last.status).to eq 'pending'
-        end
+    context 'when payment fails due to payment error' do
+      before { request }
 
-        it 'returns status code 400' do
-          expect(response).to have_http_status(:bad_request)
-        end
+      let(:token) { :payment_error }
+
+      it 'returns correct error message' do
+        expect(json['message']).to eq 'Something went wrong with your transaction.'
+      end
+
+      it 'does not update payment status' do
+        expect(Payment.last.status).to eq 'pending'
+      end
+
+      it 'returns status code 400' do
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
 
   describe 'put /payment/:payment_id/refund' do
-    subject { put "/payments/#{payment_id}/refund", params: params }
+    let(:request) { put "/payments/#{payment_id}/refund", params: params }
 
     let(:status) { 'paid' }
 
-    before { subject }
+    before { request }
 
     context 'when refund request is valid' do
       include_examples 'payment request refund success examples'
