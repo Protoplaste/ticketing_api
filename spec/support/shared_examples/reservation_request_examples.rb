@@ -15,13 +15,16 @@ RSpec.shared_examples 'reservation request success examples' do
 
   it 'creates tickets' do
     tickets = Reservation.last.tickets
-    expect(tickets.empty?).not_to be true
     expect(tickets.length).to eq seats.length
   end
 
   it 'creates a pending payment' do
     payment = Reservation.last.payment
     expect(payment.status).to eq 'pending'
+  end
+
+  it 'assings correct amount to payment' do
+    payment = Reservation.last.payment
     expect(payment.amount).to eq payment.reservation.total_cost
   end
 
@@ -32,7 +35,6 @@ end
 
 RSpec.shared_examples 'reservation request failure examples' do
   it 'does not create a reservation' do
-    expect(json['id']).to be nil
     expect(Reservation.last).to be nil
   end
 

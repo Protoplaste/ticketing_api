@@ -9,15 +9,16 @@ RSpec.describe 'Reservations', type: :request do
 
   describe 'POST /reservations' do
     let(:params) { { seats: seat_ids } }
+    let!(:additional_seats) {}
+
+    before { post '/reservations', params: params }
 
     context 'when the request is valid' do
-      before { post '/reservations', params: params }
-
       include_examples 'reservation request success examples'
     end
 
     context 'when trying to create an empty reservation' do
-      before { post '/reservations', params: {} }
+      let(:params) { {} }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(:not_found)
@@ -31,11 +32,34 @@ RSpec.describe 'Reservations', type: :request do
       include_examples 'reservation request failure examples'
     end
 
+    context 'when trying to reserve seats that are already reserved' do
+      let!(:reservation) { create(:full_reservation) }
+      let!(:seats) { reservation.seats }
+
+      it 'returns validation error message' do
+        expect(json['message']).to include 'Tickets is invalid'
+      end
+
+      it 'does not create a reservation' do
+        expect(Reservation.count).to eq 1
+      end
+
+      it 'does not create tickets' do
+        expect(Ticket.count).to eq seats.count
+      end
+
+      it 'does not create a pending payment' do
+        expect(Payment.count).to eq 1
+      end
+
+      it 'does not create a timeout job' do
+        expect(ReservationTimeoutJob).not_to have_been_enqueued
+      end
+    end
+
     context 'when sector have enabled selling option' do
       context 'even' do
         let(:sector) { create(:sector, selling_option_even: true) }
-
-        before { post '/reservations', params: params }
 
         it 'lets valid request through' do
           expect(response).to have_http_status(:created)
@@ -54,9 +78,6 @@ RSpec.describe 'Reservations', type: :request do
 
       context 'avoid one' do
         let(:sector) { create(:sector, selling_option_avoid_one: true) }
-        let!(:additional_seats) {}
-
-        before { post '/reservations', params: params }
 
         context 'when reservation leaves no seats left' do
           it 'lets valid request through' do
@@ -85,8 +106,6 @@ RSpec.describe 'Reservations', type: :request do
 
       context 'all together' do
         let(:sector) { create(:sector, selling_option_all_together: true) }
-
-        before { post '/reservations', params: params }
 
         it 'lets valid request through' do
           expect(response).to have_http_status(:created)
