@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples 'payment request refund success examples' do
   it 'changes payment status' do
     expect(Payment.last.status).to eq 'refunded'

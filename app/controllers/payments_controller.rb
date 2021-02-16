@@ -23,9 +23,7 @@ class PaymentsController < ApplicationController
   def refund
     payment = Payment.includes(reservation: [:tickets]).find(params[:id])
 
-    unless ['paid', 'refund_failed'].include? payment.status
-      raise PaymentUnrefundable.new(payment.status)
-    else
+    if %w[paid refund_failed].include? payment.status
       response = Adapter::Payment::Gateway.refund(token: params[:token],
                                                   amount: payment.amount,
                                                   payment_id: payment.id)
@@ -34,6 +32,8 @@ class PaymentsController < ApplicationController
       payment.reservation.tickets.each(&:destroy)
 
       json_response(response, :ok)
+    else
+      raise PaymentUnrefundable, payment.status
     end
   end
 end

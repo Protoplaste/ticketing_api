@@ -45,7 +45,7 @@ RSpec.describe Reservation, type: :model do
 
         error_messages.each do |key, message|
           it "does not add error message for #{key}" do
-            expect(subject.errors.full_messages).to_not include message
+            expect(subject.errors.full_messages).not_to include message
           end
         end
       end
@@ -56,7 +56,7 @@ RSpec.describe Reservation, type: :model do
 
       error_messages.each do |key, message|
         it "does not add error message for #{key}" do
-          expect(subject.errors.full_messages).to_not include message
+          expect(subject.errors.full_messages).not_to include message
         end
       end
     end

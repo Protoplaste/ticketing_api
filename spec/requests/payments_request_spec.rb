@@ -11,7 +11,6 @@ RSpec.describe 'Payments', type: :request do
   let(:params) { { token: token } }
 
   describe 'put /payment/:payment_id/charge' do
-
     subject { put "/payments/#{payment_id}/charge", params: params }
 
     context 'when payment goes through' do
@@ -89,9 +88,9 @@ RSpec.describe 'Payments', type: :request do
   end
 
   describe 'put /payment/:payment_id/refund' do
-    let(:status) { 'paid' }
-
     subject { put "/payments/#{payment_id}/refund", params: params }
+
+    let(:status) { 'paid' }
 
     before { subject }
 
@@ -101,21 +100,25 @@ RSpec.describe 'Payments', type: :request do
 
     context 'when payment was not finalized' do
       let(:status) { 'pending' }
+
       include_examples 'payment refund request failure due to status examples'
     end
 
     context 'when payment was already refunded' do
       let(:status) { 'refunded' }
+
       include_examples 'payment refund request failure due to status examples'
     end
 
     context 'when payment refund failed before' do
       let(:status) { 'refund_failed' }
+
       include_examples 'payment request refund success examples'
     end
 
     context 'when payment gateway fails' do
       let(:token) { :refund_error }
+
       it 'changes payments status' do
         expect(Payment.last.status).to eq 'refund_failed'
       end

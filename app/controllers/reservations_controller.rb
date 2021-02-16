@@ -6,7 +6,6 @@ class ReservationsController < ApplicationController
       # Find seats that user wants to reserve
       seats = Seat.includes(:sector).find(params[:seats])
 
-
       # Build a reservation with those seats
       @reservation = Reservation.new
       seats.each do |seat|
